@@ -218,35 +218,20 @@ AddEventHandler('esx_mechanicjob:onNPCJobMissionCompleted', function()
 	TriggerClientEvent("esx:showNotification", source, TranslateCap('your_comp_earned').. total)
 end)
 
-ESX.RegisterUsableItem('blowpipe', function(source)
-	local source = source
-	local xPlayer  = ESX.GetPlayerFromId(source)
+local usableItems = {
+    {item = 'blowpipe', event = 'onHijack', message = 'you_used_blowtorch'},
+    {item = 'fixkit', event = 'onFixkit', message = 'you_used_repair_kit'},
+    {item = 'carokit', event = 'onCarokit', message = 'you_used_body_kit'}
+}
 
-	xPlayer.removeInventoryItem('blowpipe', 1)
-
-	TriggerClientEvent('esx_mechanicjob:onHijack', source)
-	TriggerClientEvent('esx:showNotification', source, TranslateCap('you_used_blowtorch'))
-end)
-
-ESX.RegisterUsableItem('fixkit', function(source)
-	local source = source
-	local xPlayer  = ESX.GetPlayerFromId(source)
-
-	xPlayer.removeInventoryItem('fixkit', 1)
-
-	TriggerClientEvent('esx_mechanicjob:onFixkit', source)
-	TriggerClientEvent('esx:showNotification', source, TranslateCap('you_used_repair_kit'))
-end)
-
-ESX.RegisterUsableItem('carokit', function(source)
-	local source = source
-	local xPlayer  = ESX.GetPlayerFromId(source)
-
-	xPlayer.removeInventoryItem('carokit', 1)
-
-	TriggerClientEvent('esx_mechanicjob:onCarokit', source)
-	TriggerClientEvent('esx:showNotification', source, TranslateCap('you_used_body_kit'))
-end)
+for _, usableItem in ipairs(usableItems) do
+    ESX.RegisterUsableItem(usableItem.item, function(source)
+        local xPlayer = ESX.GetPlayerFromId(source)
+        xPlayer.removeInventoryItem(usableItem.item, 1)
+        TriggerClientEvent('esx_mechanicjob:' .. usableItem.event, source)
+        TriggerClientEvent('esx:showNotification', source, TranslateCap(usableItem.message))
+    end)
+end
 
 RegisterServerEvent('esx_mechanicjob:getStockItem')
 AddEventHandler('esx_mechanicjob:getStockItem', function(itemName, count)
